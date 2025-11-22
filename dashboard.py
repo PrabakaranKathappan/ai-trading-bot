@@ -16,6 +16,78 @@ CORS(app, resources={r"/api/*": {"origins": "*"}})
 # Global reference to trading engine
 trading_engine = None
 
+from functools import wraps
+
+# ... (existing imports)
+
+def check_pin(f):
+    """Decorator to check Access PIN"""
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        # Skip check for health and static files
+        if request.endpoint in ['health_check', 'index', 'static']:
+            return f(*args, **kwargs)
+            
+        # Get PIN from header
+        pin = request.headers.get('X-Access-Pin')
+        
+        # Check against Config
+        if not pin or pin != Config.BOT_ACCESS_PIN:
+            logger.warning(f"Unauthorized access attempt. PIN provided: {pin}")
+            return jsonify({'error': 'Unauthorized: Invalid Access PIN'}), 401
+            
+        return f(*args, **kwargs)
+    return decorated_function
+
+# Apply decorator to all /api routes
+@app.before_request
+def before_request():
+    if request.path.startswith('/api/'):
+        # Manually check PIN for API routes since before_request runs before decorators
+        pin = request.headers.get('X-Access-Pin')
+        if not pin or pin != Config.BOT_ACCESS_PIN:
+            # Allow OPTIONS for CORS
+            if request.method == 'OPTIONS':
+                return
+            logger.warning(f"Unauthorized access attempt to {request.path}")
+            return jsonify({'error': 'Unauthorized: Invalid Access PIN'}), 401
+
+@app.route('/api/positions/close', methods=['POST'])
+def close_specific_position():
+    """Close a specific position"""
+    try:
+        data = request.get_json()
+        symbol = data.get('symbol')
+        
+        if not symbol:
+            return jsonify({'error': 'Missing symbol'}), 400
+            
+        if trading_engine:
+            # Find position
+            positions = trading_engine.database.get_open_positions()
+            target_pos = next((p for p in positions if p['symbol'] == symbol), None)
+            
+            if target_pos:
+                # Get current price
+                quote = trading_engine.upstox.get_market_quote(symbol)
+                price = quote['ltp'] if quote else target_pos['current_price']
+                
+                success = trading_engine.close_position(target_pos, price, 'MANUAL_CLOSE')
+                if success:
+                    return jsonify({'status': 'closed', 'message': f'Position {symbol} closed'})
+                else:
+                    return jsonify({'error': 'Failed to close position'}), 500
+            else:
+                return jsonify({'error': 'Position not found'}), 404
+        else:
+            return jsonify({'error': 'Trading engine not initialized'}), 500
+            
+    except Exception as e:
+        logger.error(f"Error closing position: {e}")
+        return jsonify({'error': str(e)}), 500
+
+# ... (existing routes)
+
 def set_trading_engine(engine):
     """Set reference to trading engine"""
     global trading_engine

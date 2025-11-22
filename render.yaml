@@ -12,3 +12,5 @@ services:
         value: https://ai-trading-bot.onrender.com/callback
       - key: TRADING_MODE
         value: paper
+      - key: BOT_ACCESS_PIN
+        generateValue: true

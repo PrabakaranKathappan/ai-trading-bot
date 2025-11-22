@@ -12,6 +12,9 @@ class Config:
     UPSTOX_API_SECRET = os.getenv('UPSTOX_API_SECRET', '')
     UPSTOX_REDIRECT_URI = os.getenv('UPSTOX_REDIRECT_URI', 'http://localhost:5000/callback')
     
+    # Security
+    BOT_ACCESS_PIN = os.getenv('BOT_ACCESS_PIN', '0000')  # Default PIN if not set
+    
     # Trading Configuration
     CAPITAL = float(os.getenv('CAPITAL', 70000))
     RISK_PER_TRADE = float(os.getenv('RISK_PER_TRADE', 2))  # Percentage

@@ -20,6 +20,7 @@ Render will read the `render.yaml` file I just pushed.
    - You do **NOT** need to enter `UPSTOX_API_KEY` or `UPSTOX_API_SECRET` anymore.
    - These will be provided via the Mobile App later.
    - `TRADING_MODE` is set to `paper` by default.
+   - `BOT_ACCESS_PIN`: Set this to a strong password (e.g., `MyS3cr3tP@ssw0rd!`).
 3. Click **"Apply"** or **"Create Blueprint"**.
 
 ## Step 3: Done!
@@ -35,6 +36,18 @@ Once deployed (it takes a few minutes):
 1. Click on the service name in the dashboard.
 2. You will see a URL like `https://ai-trading-bot-xxxx.onrender.com`.
 3. Click it to see your bot's dashboard!
+
+## ⚡ Keeping it Alive (Important!)
+
+Render's Free Tier spins down after 15 minutes of inactivity. To prevent this:
+
+1.  **Use a Free Uptime Monitor**:
+    -   Go to [UptimeRobot](https://uptimerobot.com/) (or any similar free service).
+    -   Create a new monitor.
+    -   **Monitor Type**: HTTP(s)
+    -   **URL**: `https://ai-trading-bot-npoh.onrender.com/health`
+    -   **Interval**: 5 minutes
+2.  This will send a request to your bot every 5 minutes, keeping it active 24/7.
 
 ---
 
