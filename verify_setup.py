@@ -53,7 +53,7 @@ def main():
     files_to_check = [
         ('main.py', 'Main application'),
         ('config.py', 'Configuration'),
-        ('upstox_client.py', 'Upstox API client'),
+        ('upstox_handler.py', 'Upstox API client'),
         ('trading_engine.py', 'Trading engine'),
         ('signal_generator.py', 'Signal generator'),
         ('risk_manager.py', 'Risk manager'),

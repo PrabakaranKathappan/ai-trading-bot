@@ -1,7 +1,7 @@
 import time
 from datetime import datetime, time as dt_time
 import pytz
-from upstox_client import UpstoxClient
+from upstox_handler import UpstoxClient
 from signal_generator import SignalGenerator
 from risk_manager import RiskManager
 from database import Database

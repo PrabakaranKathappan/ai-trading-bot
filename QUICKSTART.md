@@ -119,7 +119,7 @@ AiTradingBot/
 ├── risk_manager.py      # Risk management
 ├── indicators.py        # Technical indicators
 ├── order_flow.py        # Order flow analysis
-├── upstox_client.py     # Upstox API
+├── upstox_handler.py    # Upstox API
 ├── database.py          # Trade storage
 ├── logger.py            # Logging system
 ├── logs/                # Log files (created automatically)

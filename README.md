@@ -133,7 +133,7 @@ The bot combines multiple signals:
 AiTradingBot/
 ├── main.py                 # Application entry point
 ├── config.py              # Configuration settings
-├── upstox_client.py       # Upstox API integration
+├── upstox_handler.py      # Upstox API integration
 ├── indicators.py          # Technical indicators
 ├── order_flow.py          # Order flow analysis
 ├── signal_generator.py    # Signal generation
