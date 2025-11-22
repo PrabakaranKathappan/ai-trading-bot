@@ -21,6 +21,13 @@ class UpstoxClient:
         self.configuration = None
         self.api_instance = None
         
+    def set_credentials(self, api_key, api_secret):
+        """Update API credentials dynamically"""
+        self.api_key = api_key
+        self.api_secret = api_secret
+        # Also update Config to keep them in sync
+        Config.set_credentials(api_key, api_secret)
+        
     def get_authorization_url(self):
         """Generate authorization URL for OAuth flow"""
         auth_url = f"https://api.upstox.com/v2/login/authorization/dialog?client_id={self.api_key}&redirect_uri={self.redirect_uri}&response_type=code"
@@ -32,6 +39,10 @@ class UpstoxClient:
         If auth_code is None, will open browser for user to login
         """
         try:
+            if not self.api_key or not self.api_secret:
+                logger.warning("API credentials not set. Skipping authentication.")
+                return False
+
             if not auth_code:
                 # Open browser for user authentication
                 auth_url = self.get_authorization_url()

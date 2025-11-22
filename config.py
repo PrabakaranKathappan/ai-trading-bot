@@ -71,8 +71,9 @@ class Config:
     @classmethod
     def validate(cls):
         """Validate configuration"""
-        if not cls.UPSTOX_API_KEY or not cls.UPSTOX_API_SECRET:
-            raise ValueError("Upstox API credentials not configured. Please set UPSTOX_API_KEY and UPSTOX_API_SECRET in .env file")
+        # UPSTOX credentials are now optional at startup (can be set dynamically)
+        # if not cls.UPSTOX_API_KEY or not cls.UPSTOX_API_SECRET:
+        #     raise ValueError("Upstox API credentials not configured. Please set UPSTOX_API_KEY and UPSTOX_API_SECRET in .env file")
         
         if cls.CAPITAL <= 0:
             raise ValueError("Capital must be greater than 0")
@@ -81,6 +82,12 @@ class Config:
             raise ValueError("Risk per trade must be between 0 and 100")
         
         return True
+    
+    @classmethod
+    def set_credentials(cls, api_key, api_secret):
+        """Set Upstox API credentials dynamically"""
+        cls.UPSTOX_API_KEY = api_key
+        cls.UPSTOX_API_SECRET = api_secret
     
     @classmethod
     def get_max_loss_per_trade(cls):

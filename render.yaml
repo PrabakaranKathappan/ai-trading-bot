@@ -8,10 +8,6 @@ services:
     envVars:
       - key: PYTHON_VERSION
         value: 3.11.0
-      - key: UPSTOX_API_KEY
-        sync: false
-      - key: UPSTOX_API_SECRET
-        sync: false
       - key: UPSTOX_REDIRECT_URI
         value: https://ai-trading-bot.onrender.com/callback
       - key: TRADING_MODE

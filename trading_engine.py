@@ -41,6 +41,19 @@ class TradingEngine:
         logger.info("Trading engine initialized successfully")
         return True
     
+    def update_credentials(self, api_key, api_secret):
+        """Update credentials and re-authenticate"""
+        logger.info("Updating credentials...")
+        self.upstox.set_credentials(api_key, api_secret)
+        
+        # Re-authenticate
+        if self.upstox.authenticate():
+            logger.info("Re-authentication successful")
+            return True
+        else:
+            logger.error("Re-authentication failed")
+            return False
+    
     def is_market_open(self):
         """Check if market is currently open"""
         ist = pytz.timezone('Asia/Kolkata')

@@ -155,6 +155,34 @@ def square_off():
         logger.error(f"Error squaring off: {e}")
         return jsonify({'error': str(e)}), 500
 
+@app.route('/api/configure', methods=['POST'])
+def configure():
+    """Configure API credentials"""
+    try:
+        data = request.get_json()
+        api_key = data.get('api_key')
+        api_secret = data.get('api_secret')
+        
+        if not api_key or not api_secret:
+            return jsonify({'error': 'Missing api_key or api_secret'}), 400
+            
+        # Update Config
+        Config.set_credentials(api_key, api_secret)
+        
+        # Update Trading Engine if initialized
+        if trading_engine:
+            success = trading_engine.update_credentials(api_key, api_secret)
+            if success:
+                return jsonify({'status': 'configured', 'message': 'Credentials updated and authenticated'})
+            else:
+                return jsonify({'error': 'Authentication failed with new credentials'}), 401
+        else:
+            return jsonify({'error': 'Trading engine not initialized'}), 500
+            
+    except Exception as e:
+        logger.error(f"Error configuring credentials: {e}")
+        return jsonify({'error': str(e)}), 500
+
 def run_dashboard(engine=None):
     """Run the dashboard server"""
     if engine:
