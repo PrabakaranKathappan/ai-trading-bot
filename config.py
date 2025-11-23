@@ -28,10 +28,10 @@ class Config:
     ENABLED_STRATEGIES = {
         'RSI': True,
         'MACD': True,
-        'BOLLINGER_BANDS': False, # Disabled for free tier (save CPU)
+        'BOLLINGER_BANDS': True,
         'EMA': True,
         'BREAKOUT': True,
-        'ORDER_FLOW': False # Disabled for free tier (heavy computation)
+        'ORDER_FLOW': True
     }
     
     # Market Hours (IST)
