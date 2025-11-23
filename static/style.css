@@ -576,28 +576,6 @@ body {
         padding-bottom: env(safe-area-inset-bottom);
     }
 
-    .header {
-        padding-top: calc(16px + env(safe-area-inset-top));
-    }
-}
-
-/* Touch Improvements */
-@media (hover: none) and (pointer: coarse) {
-    .btn:active {
-        transform: scale(0.98);
-    }
-
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 16px;
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-    gap: 12px;
-}
-
-.trade-detail {
-    display: flex;
-    flex-direction: column;
     gap: 4px;
 }
 
