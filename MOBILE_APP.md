@@ -1,172 +1,70 @@
-# Mobile App Installation Guide
+# 📱 AI Trading Bot - Mobile App Guide
 
-## 📱 Install on Your Phone
+You now have a full **React Native** mobile app that connects to your Render cloud backend!
 
-The AI Trading Bot dashboard is now a **Progressive Web App (PWA)** that you can install on your mobile phone like a native app!
+## 🚀 How to Run the App
 
-## Installation Steps
-
-### For Android (Chrome/Edge)
-
-1. **Start the bot** on your computer:
-   ```bash
-   python main.py
-   ```
-
-2. **Find your computer's IP address**:
-   - Windows: Open Command Prompt and type `ipconfig`
-   - Look for "IPv4 Address" (e.g., `192.168.1.100`)
-
-3. **On your phone**:
-   - Open Chrome browser
-   - Go to: `http://YOUR_IP_ADDRESS:5000`
-   - Example: `http://192.168.1.100:5000`
-
-4. **Install the app**:
-   - Tap the menu (⋮) in Chrome
-   - Select "Add to Home screen" or "Install app"
-   - Tap "Add" or "Install"
-   - The app icon will appear on your home screen
-
-### For iPhone (Safari)
-
-1. **Start the bot** on your computer (same as above)
-
-2. **Find your computer's IP address** (same as above)
-
-3. **On your iPhone**:
-   - Open Safari browser
-   - Go to: `http://YOUR_IP_ADDRESS:5000`
-   - Example: `http://192.168.1.100:5000`
-
-4. **Install the app**:
-   - Tap the Share button (□↑)
-   - Scroll down and tap "Add to Home Screen"
-   - Tap "Add"
-   - The app icon will appear on your home screen
-
-## Important Notes
-
-### Network Requirements
-
-> **IMPORTANT**: Your phone and computer must be on the **same WiFi network**!
-
-- Both devices should connect to the same router
-- If using mobile data, the app won't work (unless you set up port forwarding)
-
-### Security Note
-
-The dashboard is accessible to anyone on your network. For security:
-- Only use on trusted networks (your home WiFi)
-- Don't expose the bot to the internet without proper security
-- Consider adding authentication if needed
-
-### Making It Accessible from Anywhere
-
-If you want to access the bot from anywhere (not just home WiFi):
-
-#### Option 1: Use ngrok (Easiest)
-
-1. **Install ngrok**: Download from https://ngrok.com/download
-
-2. **Run ngrok**:
-   ```bash
-   ngrok http 5000
-   ```
-
-3. **Use the ngrok URL** on your phone:
-   - ngrok will give you a URL like: `https://abc123.ngrok.io`
-   - Use this URL on your phone from anywhere
-
-#### Option 2: Deploy to Cloud (Advanced)
-
-Deploy the bot to a cloud service like:
-- **Heroku** (free tier available)
-- **Railway** (free tier available)
-- **DigitalOcean** (paid)
-- **AWS/Azure** (paid)
-
-## Features Available on Mobile
-
-✅ **Real-time P&L monitoring**
-✅ **View open positions**
-✅ **Check trade history**
-✅ **Performance statistics**
-✅ **Control buttons** (Pause/Resume/Square Off)
-✅ **Auto-refresh** every 5 seconds
-✅ **Works offline** (cached data)
-✅ **Push notifications** (coming soon)
-
-## App Features
-
-### Offline Support
-- The app caches data for offline viewing
-- Last known status is available even without internet
-
-### Home Screen Icon
-- Beautiful gradient icon with robot and chart
-- Looks like a native app
-
-### Full Screen Experience
-- No browser UI when launched from home screen
-- Immersive trading dashboard
-
-### Touch Optimized
-- Large, touch-friendly buttons
-- Smooth scrolling
-- Optimized for one-handed use
-
-## Troubleshooting
-
-### Can't connect from phone
-
-1. **Check same WiFi**: Ensure both devices are on same network
-2. **Check firewall**: Windows Firewall might block port 5000
-   - Open Windows Defender Firewall
-   - Allow Python through firewall
-3. **Try computer name**: Instead of IP, try `http://COMPUTER-NAME:5000`
-
-### App not installing
-
-1. **Chrome**: Make sure you're using Chrome (not other browsers)
-2. **Safari**: Make sure you're using Safari (not Chrome on iPhone)
-3. **Clear cache**: Clear browser cache and try again
-
-### App shows old data
-
-1. **Refresh**: Pull down to refresh the page
-2. **Clear cache**: Uninstall and reinstall the app
-
-## Configuration for Remote Access
-
-To allow access from outside your network, update `config.py`:
-
-```python
-# Dashboard
-DASHBOARD_HOST = '0.0.0.0'  # Already set - allows external access
-DASHBOARD_PORT = 5000
+### Step 1: Install Dependencies (One Time)
+Open your terminal in the `mobile-app` folder and run:
+```bash
+cd "c:\Users\Prabakaran K\Documents\antigravity_apps\AiTradingBot\mobile-app"
+npm install
 ```
 
-Then configure your router to forward port 5000 to your computer's IP address.
+### Step 2: Start the App
+Run this command to start the development server:
+```bash
+npx expo start
+```
+*If you see a PowerShell error, try:* `cmd /c "npx expo start"`
 
-> **WARNING**: Only do this if you understand the security implications!
-
-## Screenshots
-
-The mobile app includes:
-- **Dashboard**: P&L, positions, and controls
-- **Positions View**: All open trades with live P&L
-- **Trade History**: Today's completed trades
-- **Performance Stats**: Win rate, avg win/loss
-
-## Next Steps
-
-1. Install the app on your phone
-2. Add your Upstox credentials to `.env`
-3. Run `python main.py`
-4. Access from your phone
-5. Monitor your trades on the go!
+### Step 3: Open on Phone
+1.  Install **Expo Go** from the App Store (iOS) or Play Store (Android).
+2.  Open Expo Go.
+3.  **Scan the QR code** shown in your terminal.
+    *   **Android**: Use the scanner inside Expo Go.
+    *   **iOS**: Use the default Camera app.
 
 ---
 
-**Enjoy monitoring your trading bot from anywhere! 📱💹**
+## 🛠️ App Features & Setup
+
+### 1. Initial Setup
+1.  **Login**: Enter your Render URL (`https://ai-trading-bot-npoh.onrender.com`) and the Access PIN you set.
+2.  **Dashboard**: You'll see the main dashboard. It might show "Error" initially if keys aren't set.
+
+### 2. Configure Keys
+1.  Tap the **Settings (⚙️)** button (bottom right).
+2.  Enter your **Upstox API Key** and **Secret**.
+3.  Tap **"Save Credentials"**.
+
+### 3. Authenticate
+1.  In Settings, tap **"Authenticate with Upstox"**.
+2.  This will open your phone's browser.
+3.  Log in to Upstox.
+4.  Once done, you'll see a success message. Close the browser and go back to the app.
+
+### 4. Verify System
+1.  In Settings, tap **"Check System Status"**.
+2.  The app will check:
+    *   ✅ Server Connection
+    *   ✅ Trading Engine
+    *   ✅ Authentication
+    *   ✅ Market Data
+3.  If you see **"SYSTEM READY"**, your bot is live and trading!
+
+---
+
+## 📱 Dashboard Features
+
+-   **Status**: Shows if the bot is Running/Stopped and the current Mode (Paper/Live).
+-   **P&L**: Real-time Profit & Loss for the day.
+-   **Positions**: View all open positions with live P&L.
+-   **Close Position**: Tap "Close" on any position to exit it immediately.
+-   **Square Off**: Tap the red "Square Off All" button to close EVERYTHING.
+
+## ⚠️ Troubleshooting
+
+-   **"Network Error"**: Make sure your phone has internet access.
+-   **"Unauthorized"**: Check your Access PIN in `render.yaml` (or the one you set in Render dashboard).
+-   **"Engine Not Initialized"**: Go to Settings -> Check System Status to see what's wrong. Usually needs Authentication.

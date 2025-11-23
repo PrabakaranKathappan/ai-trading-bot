@@ -1,3 +1,4 @@
+import 'react-native-gesture-handler';
 import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
@@ -16,7 +17,18 @@ export default function App() {
         <PaperProvider>
             <NavigationContainer>
                 <StatusBar style="auto" />
-                <Stack.Navigator initialRouteName="Login">
+                <Stack.Navigator
+                    initialRouteName="Login"
+                    screenOptions={{
+                        headerStyle: {
+                            backgroundColor: '#f4511e',
+                        },
+                        headerTintColor: '#fff',
+                        headerTitleStyle: {
+                            fontWeight: 'bold',
+                        },
+                    }}
+                >
                     <Stack.Screen
                         name="Login"
                         component={LoginScreen}
@@ -31,6 +43,7 @@ export default function App() {
                         }}
                     />
                     <Stack.Screen
+                        name="Setup"
                         component={SetupScreen}
                         options={{ title: 'Settings' }}
                     />

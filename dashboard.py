@@ -10,8 +10,8 @@ import os
 logger = Logger.get_logger('dashboard')
 
 app = Flask(__name__)
-# Allow CORS for mobile app
-CORS(app, resources={r"/api/*": {"origins": "*"}})
+# Allow CORS for mobile app (Global)
+CORS(app)
 
 # Global reference to trading engine
 trading_engine = None
