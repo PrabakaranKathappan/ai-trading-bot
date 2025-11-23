@@ -255,6 +255,28 @@ def configure():
         logger.error(f"Error configuring credentials: {e}")
         return jsonify({'error': str(e)}), 500
 
+@app.route('/login')
+def login():
+    """Redirect to Upstox login"""
+    if trading_engine:
+        auth_url = trading_engine.upstox.get_authorization_url()
+        return jsonify({'auth_url': auth_url})
+    return jsonify({'error': 'Trading engine not initialized'}), 500
+
+@app.route('/callback')
+def callback():
+    """Handle Upstox callback"""
+    code = request.args.get('code')
+    if not code:
+        return "Error: No code provided", 400
+        
+    if trading_engine:
+        if trading_engine.upstox.authenticate(code):
+            return "Authentication successful! You can close this window and return to the app."
+        else:
+            return "Authentication failed. Please check logs."
+    return "Error: Trading engine not initialized", 500
+
 def run_dashboard(engine=None):
     """Run the dashboard server"""
     if engine:

@@ -44,20 +44,14 @@ class UpstoxClient:
                 return False
 
             if not auth_code:
-                # Open browser for user authentication
-                auth_url = self.get_authorization_url()
-                logger.info(f"Opening browser for authentication: {auth_url}")
-                webbrowser.open(auth_url)
+                # In cloud environment, we cannot use input()
+                # We must return False and let the user authenticate via the dashboard
+                if Config.TRADING_MODE == 'paper':
+                    logger.info("Paper trading mode: Skipping Upstox authentication")
+                    return True
                 
-                # Wait for user to provide auth code
-                print("\n" + "="*60)
-                print("UPSTOX AUTHENTICATION")
-                print("="*60)
-                print("1. Browser window opened for Upstox login")
-                print("2. After login, you'll be redirected to a URL")
-                print("3. Copy the 'code' parameter from the redirected URL")
-                print("="*60)
-                auth_code = input("\nEnter the authorization code: ").strip()
+                logger.warning("No auth code provided. Authentication required via Dashboard.")
+                return False
             
             # Exchange auth code for access token
             api_instance = upstox_client.LoginApi()
