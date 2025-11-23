@@ -58,6 +58,32 @@ export default function SetupScreen({ navigation }) {
         }
     };
 
+    const handleAuthenticate = async () => {
+        setLoading(true);
+        try {
+            const url = await SecureStore.getItemAsync('bot_url');
+            const pin = await SecureStore.getItemAsync('bot_pin');
+
+            const response = await axios.get(`${url}/login`, {
+                headers: { 'X-Access-Pin': pin }
+            });
+
+            if (response.data.auth_url) {
+                // Open in browser
+                import('react-native').then(({ Linking }) => {
+                    Linking.openURL(response.data.auth_url);
+                });
+            } else {
+                Alert.alert('Error', 'Could not get auth URL');
+            }
+        } catch (error) {
+            console.log(error);
+            Alert.alert('Error', 'Failed to start authentication');
+        } finally {
+            setLoading(false);
+        }
+    };
+
     return (
         <View style={styles.container}>
             <Surface style={styles.surface}>
@@ -90,7 +116,25 @@ export default function SetupScreen({ navigation }) {
                     loading={loading}
                     style={styles.button}
                 >
-                    Save & Connect
+                    Save Credentials
+                </Button>
+
+                <Button
+                    mode="contained-tonal"
+                    icon="login"
+                    onPress={handleAuthenticate}
+                    style={[styles.button, { marginTop: 20, backgroundColor: '#e3f2fd' }]}
+                >
+                    Authenticate with Upstox
+                </Button>
+
+                <Button
+                    mode="contained-tonal"
+                    icon="check-network-outline"
+                    onPress={() => navigation.navigate('Verification')}
+                    style={[styles.button, { backgroundColor: '#e8f5e9' }]}
+                >
+                    Check System Status
                 </Button>
 
                 <Button
@@ -98,7 +142,7 @@ export default function SetupScreen({ navigation }) {
                     onPress={() => navigation.goBack()}
                     style={styles.button}
                 >
-                    Cancel
+                    Back
                 </Button>
             </Surface>
         </View>

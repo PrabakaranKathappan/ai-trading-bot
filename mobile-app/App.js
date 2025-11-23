@@ -7,6 +7,7 @@ import { StatusBar } from 'expo-status-bar';
 import LoginScreen from './screens/LoginScreen';
 import DashboardScreen from './screens/DashboardScreen';
 import SetupScreen from './screens/SetupScreen';
+import VerificationScreen from './screens/VerificationScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -30,9 +31,13 @@ export default function App() {
                         }}
                     />
                     <Stack.Screen
-                        name="Setup"
                         component={SetupScreen}
                         options={{ title: 'Settings' }}
+                    />
+                    <Stack.Screen
+                        name="Verification"
+                        component={VerificationScreen}
+                        options={{ title: 'System Check' }}
                     />
                 </Stack.Navigator>
             </NavigationContainer>

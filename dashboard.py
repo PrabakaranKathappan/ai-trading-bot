@@ -255,6 +255,43 @@ def configure():
         logger.error(f"Error configuring credentials: {e}")
         return jsonify({'error': str(e)}), 500
 
+@app.route('/api/system-check')
+def system_check():
+    """Perform comprehensive system check"""
+    status = {
+        'server': {'status': 'ok', 'message': 'Server is running'},
+        'engine': {'status': 'error', 'message': 'Not initialized'},
+        'auth': {'status': 'error', 'message': 'Not authenticated'},
+        'market_data': {'status': 'error', 'message': 'Not connected'}
+    }
+    
+    try:
+        if trading_engine:
+            status['engine'] = {'status': 'ok', 'message': 'Trading Engine Initialized'}
+            
+            # Check Auth
+            if trading_engine.upstox.access_token:
+                status['auth'] = {'status': 'ok', 'message': 'Authenticated'}
+                
+                # Check Market Data (Try to get Nifty quote)
+                try:
+                    quote = trading_engine.upstox.get_market_quote('NSE_INDEX|Nifty 50')
+                    if quote:
+                        status['market_data'] = {'status': 'ok', 'message': f"Data Live: {quote['ltp']}"}
+                    else:
+                        status['market_data'] = {'status': 'error', 'message': 'Failed to fetch quote'}
+                except Exception as e:
+                    status['market_data'] = {'status': 'error', 'message': str(e)}
+            else:
+                status['auth'] = {'status': 'error', 'message': 'Missing Access Token'}
+        else:
+            status['engine'] = {'status': 'error', 'message': 'Engine not started'}
+            
+        return jsonify(status)
+    except Exception as e:
+        logger.error(f"System check failed: {e}")
+        return jsonify({'error': str(e)}), 500
+
 @app.route('/login')
 def login():
     """Redirect to Upstox login"""
