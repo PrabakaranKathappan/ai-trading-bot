@@ -92,7 +92,6 @@ Thanks to `.gitignore`, these are **NOT** uploaded:
 
 Once your code is on GitHub, you can:
 1. **Deploy to Render** - Follow `DEPLOY.md`
-2. **Create Mobile App** - Follow `MOBILE_APP.md`
 3. **Share with others** - Give them access to your private repo
 
 ---

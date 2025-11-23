@@ -117,7 +117,6 @@ gh auth login
 
 Once your code is on GitHub:
 1. Deploy to Render (follow `DEPLOY.md`)
-2. Create mobile app (follow `MOBILE_APP.md`)
 
 ## Troubleshooting
 

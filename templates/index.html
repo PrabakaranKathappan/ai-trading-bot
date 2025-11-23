@@ -19,243 +19,59 @@
 <body>
     <div class="container">
         <!-- Header -->
-        <header class="header">
-            <div class="header-content">
-                <h1 class="logo">
-                    <span class="logo-icon">🤖</span>
-                    AI Trading Bot
-                </h1>
-                <div class="header-status">
-                    <span class="status-badge" id="botStatus">Loading...</span>
-                    <span class="mode-badge" id="tradingMode">PAPER</span>
-                </div>
-            </div>
-        </header>
+        rel="stylesheet">
+        </head>
 
-        <!-- Dashboard Grid -->
-        <div class="dashboard-grid">
-            <!-- P&L Card -->
-            <div class="card pnl-card">
-                <div class="card-header">
-                    <h2>Today's P&L</h2>
-                    <span class="refresh-icon" onclick="refreshData()">🔄</span>
-                </div>
-                <div class="card-body">
-                    <div class="pnl-amount" id="todayPnl">₹0.00</div>
-                    <div class="pnl-stats">
-                        <div class="stat">
-                            <span class="stat-label">Capital</span>
-                            <span class="stat-value" id="capital">₹70,000</span>
-                        </div>
-                        <div class="stat">
-                            <span class="stat-label">Win Rate</span>
-                            <span class="stat-value" id="winRate">0%</span>
+        <body>
+            <div class="container">
+                <!-- Header -->
+                <header class="header">
+                    <div class="header-content">
+                        <h1 class="logo">
+                            <span class="logo-icon">🤖</span>
+                            AI Trading Bot
+                        </h1>
+                        <div class="header-status">
+                            <span class="status-badge" id="botStatus">Loading...</span>
+                            <span class="mode-badge" id="tradingMode">PAPER</span>
                         </div>
                     </div>
-                </div>
-            </div>
+                </header>
 
-            <!-- Risk Metrics Card -->
-            <div class="card">
-                <div class="card-header">
-                    <h2>Risk Metrics</h2>
-                </div>
-                <div class="card-body">
-                    <div class="risk-metrics">
-                        <div class="metric">
-                            <span class="metric-label">Open Positions</span>
-                            <span class="metric-value" id="openPositions">0 / 3</span>
+                <!-- Dashboard Grid -->
+                <div class="dashboard-grid">
+                    <!-- P&L Card -->
+                    <div class="card pnl-card">
+                        <div class="card-header">
+                            <h2>Today's P&L</h2>
+                            <span class="refresh-icon" onclick="refreshData()">🔄</span>
                         </div>
-                        <div class="metric">
-                            <span class="metric-label">Daily Loss Limit</span>
-                            <span class="metric-value" id="dailyLossLimit">₹0</span>
-                        </div>
-                        <div class="metric">
-                            <span class="metric-label">Total Exposure</span>
-                            <span class="metric-value" id="totalExposure">₹0</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Control Panel -->
-            <div class="card control-card">
-                <div class="card-header">
-                    <h2>Controls</h2>
-                </div>
-                <div class="card-body">
-                    <div class="control-buttons">
-                        <button class="btn btn-success" id="resumeBtn" onclick="resumeTrading()">
-                            ▶ Resume
-                        </button>
-                        <button class="btn btn-warning" id="pauseBtn" onclick="pauseTrading()">
-                            ⏸ Pause
-                        </button>
-                        <button class="btn btn-danger" onclick="squareOffAll()">
-                            ⏹ Square Off All
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Positions Section -->
-        <div class="section">
-            <div class="section-header">
-                <h2>Open Positions</h2>
-                <span class="badge" id="positionCount">0</span>
-            </div>
-            <div class="positions-container" id="positionsContainer">
-                <div class="empty-state">No open positions</div>
-            </div>
-        </div>
-
-        <!-- Trades Section -->
-        <div class="section">
-            <div class="section-header">
-                <h2>Today's Trades</h2>
-                <span class="badge" id="tradeCount">0</span>
-            </div>
-            <div class="trades-container" id="tradesContainer">
-                <div class="empty-state">No trades today</div>
-            </div>
-        </div>
-
-        <!-- Performance Stats -->
-        <div class="section">
-            <div class="section-header">
-                <h2>Performance (Last 30 Days)</h2>
-            </div>
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-card-label">Total Trades</div>
-                    <div class="stat-card-value" id="totalTrades">0</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-card-label">Winning Trades</div>
-                    <div class="stat-card-value" id="winningTrades">0</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-card-label">Avg Win</div>
-                    <div class="stat-card-value" id="avgWin">₹0</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-card-label">Avg Loss</div>
-                    <!DOCTYPE html>
-                    <html lang="en">
-
-                    <head>
-                        <meta charset="UTF-8">
-                        <meta name="viewport"
-                            content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-                        <meta name="theme-color" content="#6366f1">
-                        <meta name="apple-mobile-web-app-capable" content="yes">
-                        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-                        <meta name="apple-mobile-web-app-title" content="Trading Bot">
-                        <meta name="description" content="Monitor your Nifty options trading bot">
-                        <title>AI Trading Bot - Nifty Options</title>
-                        <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
-                        <link rel="apple-touch-icon" href="{{ url_for('static', filename='icon-192.png') }}">
-                        <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-                        <link
-                            href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
-                            rel="stylesheet">
-                    </head>
-
-                    <body>
-                        <div class="container">
-                            <!-- Header -->
-                            <header class="header">
-                                <div class="header-content">
-                                    <h1 class="logo">
-                                        <span class="logo-icon">🤖</span>
-                                        AI Trading Bot
-                                    </h1>
-                                    <div class="header-status">
-                                        <span class="status-badge" id="botStatus">Loading...</span>
-                                        <span class="mode-badge" id="tradingMode">PAPER</span>
-                                    </div>
+                        <div class="card-body">
+                            <div class="pnl-amount" id="todayPnl">₹0.00</div>
+                            <div class="pnl-stats">
+                                <div class="stat">
+                                    <span class="stat-label">Capital</span>
+                                    <span class="stat-value" id="capital">₹70,000</span>
                                 </div>
-                            </header>
-
-                            <!-- Dashboard Grid -->
-                            <div class="dashboard-grid">
-                                <!-- P&L Card -->
-                                <div class="card pnl-card">
-                                    <div class="card-header">
-                                        <h2>Today's P&L</h2>
-                                        <span class="refresh-icon" onclick="refreshData()">🔄</span>
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="pnl-amount" id="todayPnl">₹0.00</div>
-                                        <div class="pnl-stats">
-                                            <div class="stat">
-                                                <span class="stat-label">Capital</span>
-                                                <span class="stat-value" id="capital">₹70,000</span>
-                                            </div>
-                                            <div class="stat">
-                                                <span class="stat-label">Win Rate</span>
-                                                <span class="stat-value" id="winRate">0%</span>
-                                            </div>
-                                        </div>
-                                    </div>
+                                <div class="stat">
+                                    <span class="stat-label">Win Rate</span>
+                                    <span class="stat-value" id="winRate">0%</span>
+                                    <span class="metric-value" id="openPositions">0 / 3</span>
                                 </div>
-
-                                <!-- Risk Metrics Card -->
-                                <div class="card">
-                                    <div class="card-header">
-                                        <h2>Risk Metrics</h2>
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="risk-metrics">
-                                            <div class="metric">
-                                                <span class="metric-label">Open Positions</span>
-                                                <span class="metric-value" id="openPositions">0 / 3</span>
-                                            </div>
-                                            <div class="metric">
-                                                <span class="metric-label">Daily Loss Limit</span>
-                                                <span class="metric-value" id="dailyLossLimit">₹0</span>
-                                            </div>
-                                            <div class="metric">
-                                                <span class="metric-label">Total Exposure</span>
-                                                <span class="metric-value" id="totalExposure">₹0</span>
-                                            </div>
-                                        </div>
-                                    </div>
+                                <div class="metric">
+                                    <span class="metric-label">Daily Loss Limit</span>
+                                    <span class="metric-value" id="dailyLossLimit">₹0</span>
                                 </div>
-
-                                <!-- Control Panel -->
-                                <div class="card control-card">
-                                    <div class="card-header">
-                                        <h2>Controls</h2>
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="control-buttons">
-                                            <button class="btn btn-success" id="resumeBtn" onclick="resumeTrading()">
-                                                ▶ Resume
-                                            </button>
-                                            <button class="btn btn-warning" id="pauseBtn" onclick="pauseTrading()">
-                                                ⏸ Pause
-                                            </button>
-                                            <button class="btn btn-danger" onclick="squareOffAll()">
-                                                ⏹ Square Off All
-                                            </button>
-                                        </div>
-                                    </div>
+                                <div class="metric">
+                                    <span class="metric-label">Total Exposure</span>
+                                    <span class="metric-value" id="totalExposure">₹0</span>
                                 </div>
+                                ⏸ Pause
+                                </button>
+                                <button class="btn btn-danger" onclick="squareOffAll()">
+                                    ⏹ Square Off All
+                                </button>
                             </div>
-
-                            <!-- Positions Section -->
-                            <div class="section">
-                                <div class="section-header">
-                                    <h2>Open Positions</h2>
-                                    <span class="badge" id="positionCount">0</span>
-                                </div>
-                                <div class="positions-container" id="positionsContainer">
-                                    <div class="empty-state">No open positions</div>
-                                </div>
-                            </div>
-
                             <!-- Trades Section -->
                             <div class="section">
                                 <div class="section-header">
@@ -310,6 +126,6 @@
                         </div>
 
                         <script src="{{ url_for('static', filename='script.js') }}"></script>
-                    </body>
+        </body>
 
-                    </html>
+</html>

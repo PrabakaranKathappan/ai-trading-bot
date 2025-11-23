@@ -51,7 +51,6 @@ Your code will be live at:
 
 Once your code is on GitHub:
 1. **Deploy to Render** - Follow `DEPLOY.md`
-2. **Create Mobile App** - Follow `MOBILE_APP.md`
 
 ---
 

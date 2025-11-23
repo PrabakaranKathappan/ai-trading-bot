@@ -18,7 +18,7 @@ Render will read the `render.yaml` file I just pushed.
 1. **Service Name**: It will default to `ai-trading-bot`. You can change it if you want.
 2. **Environment Variables**:
    - You do **NOT** need to enter `UPSTOX_API_KEY` or `UPSTOX_API_SECRET` anymore.
-   - These will be provided via the Mobile App later.
+   - These will be configured via the web dashboard.
    - `TRADING_MODE` is set to `paper` by default.
    - `BOT_ACCESS_PIN`: Set this to a strong password (e.g., `MyS3cr3tP@ssw0rd!`).
 3. Click **"Apply"** or **"Create Blueprint"**.

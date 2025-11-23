@@ -54,15 +54,6 @@ Once the bot is running in the cloud:
 1. You'll get a public URL (e.g., `https://ai-trading-bot.onrender.com`)
 2. Bot runs 24/7 during market hours
 3. Access dashboard from anywhere
-4. Ready for mobile app connection!
-
-## 📱 Mobile App (Next Phase)
-
-After cloud deployment is working, I'll create:
-- React Native Android app
-- Connects to your cloud URL
-- Real-time monitoring
-- APK for direct installation
 
 ## 💰 Cost
 

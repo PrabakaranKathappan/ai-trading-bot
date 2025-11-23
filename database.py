@@ -396,3 +396,95 @@ class Database:
         except Exception as e:
             logger.error(f"Error getting performance stats: {e}")
             return {}
+    def update_strategy_performance(self, strategy_name, pnl):
+        """Update strategy performance stats"""
+        try:
+            conn = self.get_connection()
+            cursor = conn.cursor()
+            
+            if self.is_postgres:
+                cursor.execute('''
+                    SELECT total_trades, winning_trades, losing_trades, total_pnl
+                    FROM strategy_performance WHERE strategy_name = %s
+                ''', (strategy_name,))
+            else:
+                cursor.execute('''
+                    SELECT total_trades, winning_trades, losing_trades, total_pnl
+                    FROM strategy_performance WHERE strategy_name = ?
+                ''', (strategy_name,))
+            
+            result = cursor.fetchone()
+            
+            if result:
+                total_trades, winning, losing, total_pnl = result
+                total_trades += 1
+                if pnl > 0:
+                    winning += 1
+                elif pnl < 0:
+                    losing += 1
+                total_pnl += pnl
+                win_rate = (winning / total_trades * 100) if total_trades > 0 else 0
+                avg_pnl = total_pnl / total_trades if total_trades > 0 else 0
+                
+                if self.is_postgres:
+                    cursor.execute('''
+                        UPDATE strategy_performance
+                        SET total_trades = %s, winning_trades = %s, losing_trades = %s,
+                            total_pnl = %s, win_rate = %s, avg_pnl = %s
+                        WHERE strategy_name = %s
+                    ''', (total_trades, winning, losing, total_pnl, win_rate, avg_pnl, strategy_name))
+                else:
+                    cursor.execute('''
+                        UPDATE strategy_performance
+                        SET total_trades = ?, winning_trades = ?, losing_trades = ?,
+                            total_pnl = ?, win_rate = ?, avg_pnl = ?
+                        WHERE strategy_name = ?
+                    ''', (total_trades, winning, losing, total_pnl, win_rate, avg_pnl, strategy_name))
+            else:
+                winning = 1 if pnl > 0 else 0
+                losing = 1 if pnl < 0 else 0
+                win_rate = (winning / 1 * 100)
+                
+                if self.is_postgres:
+                    cursor.execute('''
+                        INSERT INTO strategy_performance 
+                        (strategy_name, total_trades, winning_trades, losing_trades, total_pnl, win_rate, avg_pnl)
+                        VALUES (%s, 1, %s, %s, %s, %s, %s)
+                    ''', (strategy_name, winning, losing, pnl, win_rate, pnl))
+                else:
+                    cursor.execute('''
+                        INSERT INTO strategy_performance 
+                        (strategy_name, total_trades, winning_trades, losing_trades, total_pnl, win_rate, avg_pnl)
+                        VALUES (?, 1, ?, ?, ?, ?, ?)
+                    ''', (strategy_name, winning, losing, pnl, win_rate, pnl))
+            
+            conn.commit()
+            cursor.close()
+            conn.close()
+        except Exception as e:
+            logger.error(f"Error updating strategy performance: {e}")
+    
+    def get_strategy_performance(self):
+        """Get performance stats for all strategies"""
+        try:
+            conn = self.get_connection()
+            if self.is_postgres:
+                cursor = conn.cursor(cursor_factory=RealDictCursor)
+                cursor.execute('SELECT * FROM strategy_performance ORDER BY total_pnl DESC')
+            else:
+                cursor = conn.cursor()
+                cursor.execute('SELECT * FROM strategy_performance ORDER BY total_pnl DESC')
+            
+            strategies = cursor.fetchall()
+            cursor.close()
+            conn.close()
+            
+            if not self.is_postgres and strategies:
+                columns = ['id', 'strategy_name', 'total_trades', 'winning_trades', 'losing_trades', 
+                          'total_pnl', 'win_rate', 'avg_pnl', 'last_updated']
+                strategies = [dict(zip(columns, s)) for s in strategies]
+            
+            return strategies
+        except Exception as e:
+            logger.error(f"Error getting strategy performance: {e}")
+            return []

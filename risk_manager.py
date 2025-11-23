@@ -10,8 +10,6 @@ class RiskManager:
     def __init__(self, database):
         self.database = database
         self.capital = Config.CAPITAL
-        self.max_daily_loss = Config.get_max_daily_loss()
-        self.max_loss_per_trade = Config.get_max_loss_per_trade()
     
     def calculate_position_size(self, entry_price, stop_loss_price):
         """
@@ -34,7 +32,7 @@ class RiskManager:
         lot_size = 50
         
         # Maximum units we can buy with our risk limit
-        max_units = self.max_loss_per_trade / risk_per_unit
+        max_units = Config.get_max_loss_per_trade() / risk_per_unit
         
         # Convert to lots (round down)
         lots = int(max_units / lot_size)
@@ -93,8 +91,8 @@ class RiskManager:
         """
         today_pnl = self.database.get_today_pnl()
         
-        if today_pnl < -self.max_daily_loss:
-            logger.warning(f"Daily loss limit reached: ₹{today_pnl:.2f} / ₹{-self.max_daily_loss:.2f}")
+        if today_pnl < -Config.get_max_daily_loss():
+            logger.warning(f"Daily loss limit reached: ₹{today_pnl:.2f} / ₹{-Config.get_max_daily_loss():.2f}")
             return False
         
         return True
@@ -249,7 +247,7 @@ class RiskManager:
         return {
             'capital': self.capital,
             'today_pnl': today_pnl,
-            'remaining_daily_loss': self.max_daily_loss + today_pnl,
+            'remaining_daily_loss': Config.get_max_daily_loss() + today_pnl,
             'open_positions': len(open_positions),
             'max_positions': Config.MAX_POSITIONS,
             'total_exposure': total_exposure,

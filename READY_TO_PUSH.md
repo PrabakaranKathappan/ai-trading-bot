@@ -40,7 +40,6 @@ Visit: https://github.com/PrabakaranKathappan/ai-trading-botai-trading-bot-new
 
 ### Next Steps
 1. Deploy to Render → See `DEPLOY.md`
-2. Create mobile app → See `MOBILE_APP.md`
 
 ---
 

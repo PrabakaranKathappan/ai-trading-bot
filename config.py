@@ -22,7 +22,17 @@ class Config:
     MAX_DAILY_LOSS = float(os.getenv('MAX_DAILY_LOSS', 5))  # Percentage
     
     # Trading Mode
-    TRADING_MODE = os.getenv('TRADING_MODE', 'paper')  # 'paper' or 'live'
+    TRADING_MODE = os.getenv('TRADING_MODE', 'paper').lower()
+    
+    # Enabled Strategies
+    ENABLED_STRATEGIES = {
+        'RSI': True,
+        'MACD': True,
+        'BOLLINGER_BANDS': True,
+        'EMA': True,
+        'BREAKOUT': True,
+        'ORDER_FLOW': True  # Controls all order flow signals
+    }
     
     # Market Hours (IST)
     MARKET_OPEN_HOUR = 9
@@ -74,9 +84,12 @@ class Config:
     @classmethod
     def validate(cls):
         """Validate configuration"""
-        # UPSTOX credentials are now optional at startup (can be set dynamically)
-        # if not cls.UPSTOX_API_KEY or not cls.UPSTOX_API_SECRET:
-        #     raise ValueError("Upstox API credentials not configured. Please set UPSTOX_API_KEY and UPSTOX_API_SECRET in .env file")
+        if cls.TRADING_MODE not in ['paper', 'live']:
+            raise ValueError("TRADING_MODE must be 'paper' or 'live'")
+            
+        if cls.TRADING_MODE == 'live':
+            if not cls.UPSTOX_API_KEY or not cls.UPSTOX_API_SECRET:
+                raise ValueError("API Key and Secret are required for LIVE trading")
         
         if cls.CAPITAL <= 0:
             raise ValueError("Capital must be greater than 0")
@@ -101,3 +114,32 @@ class Config:
     def get_max_daily_loss(cls):
         """Calculate maximum daily loss"""
         return cls.CAPITAL * (cls.MAX_DAILY_LOSS / 100)
+
+    # Profit Protection
+    SECURE_PROFIT_ENABLED = False
+    SECURE_PROFIT_AMOUNT = 0.0
+
+    @classmethod
+    def update_strategies(cls, strategies):
+        """Update enabled strategies"""
+        for key, value in strategies.items():
+            if key in cls.ENABLED_STRATEGIES:
+                cls.ENABLED_STRATEGIES[key] = bool(value)
+
+    @classmethod
+    def update_risk_settings(cls, settings):
+        """Update risk settings"""
+        if 'RISK_PER_TRADE' in settings:
+            cls.RISK_PER_TRADE = float(settings['RISK_PER_TRADE'])
+        if 'STOP_LOSS_PERCENT' in settings:
+            cls.STOP_LOSS_PERCENT = float(settings['STOP_LOSS_PERCENT'])
+        if 'TARGET_PERCENT' in settings:
+            cls.TARGET_PERCENT = float(settings['TARGET_PERCENT'])
+        if 'TRAILING_STOP_PERCENT' in settings:
+            cls.TRAILING_STOP_PERCENT = float(settings['TRAILING_STOP_PERCENT'])
+        if 'MAX_DAILY_LOSS' in settings:
+            cls.MAX_DAILY_LOSS = float(settings['MAX_DAILY_LOSS'])
+        if 'SECURE_PROFIT_ENABLED' in settings:
+            cls.SECURE_PROFIT_ENABLED = bool(settings['SECURE_PROFIT_ENABLED'])
+        if 'SECURE_PROFIT_AMOUNT' in settings:
+            cls.SECURE_PROFIT_AMOUNT = float(settings['SECURE_PROFIT_AMOUNT'])

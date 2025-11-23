@@ -225,6 +225,17 @@ class TradingEngine:
                 
                 if exit_decision['should_exit']:
                     self.close_position(position, current_price, exit_decision['reason'])
+            
+            # Check profit protection
+            today_pnl = self.database.get_today_pnl()
+            # Calculate unrealized P&L from open positions
+            unrealized_pnl = sum(pos.get('unrealized_pnl', 0) for pos in positions)
+            total_pnl = today_pnl + unrealized_pnl
+            
+            if self.risk_manager.check_profit_protection(total_pnl):
+                logger.warning("Profit protection triggered! Squaring off all positions.")
+                self.square_off_all_positions()
+                self.stop()
                 
         except Exception as e:
             logger.error(f"Error monitoring positions: {e}")

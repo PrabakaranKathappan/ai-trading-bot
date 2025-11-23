@@ -103,12 +103,29 @@ class SignalGenerator:
             signal_type = 'NEUTRAL'
             strength = 0
         
+        
+        # Track which strategies contributed to this signal
+        contributing_strategies = []
+        if tech_signals.get('rsi_signal') in ['BUY', 'SELL']:
+            contributing_strategies.append('RSI')
+        if tech_signals.get('macd_signal') in ['BUY', 'SELL']:
+            contributing_strategies.append('MACD')
+        if tech_signals.get('bb_signal') in ['BUY', 'SELL']:
+            contributing_strategies.append('BOLLINGER_BANDS')
+        if tech_signals.get('ema_signal') in ['BUY', 'SELL']:
+            contributing_strategies.append('EMA')
+        if tech_signals.get('breakout_signal') in ['BULLISH_BREAKOUT', 'BEARISH_BREAKOUT']:
+            contributing_strategies.append('BREAKOUT')
+        if order_flow_signals.get('overall_signal') in ['BUY', 'SELL']:
+            contributing_strategies.append('ORDER_FLOW')
+        
         return {
             'signal_type': signal_type,
             'strength': strength,
             'buy_score': buy_score,
             'sell_score': sell_score,
-            'total_signals': total_signals
+            'total_signals': total_signals,
+            'contributing_strategies': contributing_strategies
         }
     
     def select_strike_price(self, current_nifty_price, signal_type, atm_offset=0):
@@ -186,6 +203,7 @@ class SignalGenerator:
                 'current_nifty_price': current_price,
                 'strike_price': strike_info['strike_price'],
                 'option_type': strike_info['option_type'],
+                'contributing_strategies': signal_result.get('contributing_strategies', []),
                 'technical_analysis': {
                     'rsi': technical_analysis.get('rsi'),
                     'macd': technical_analysis.get('macd'),

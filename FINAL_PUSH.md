@@ -44,7 +44,6 @@ Your code will be live on GitHub at:
 
 ### Next Steps
 1. **Deploy to Render** - Follow `DEPLOY.md`
-2. **Create Mobile App** - Follow `MOBILE_APP.md`
 
 ---
 

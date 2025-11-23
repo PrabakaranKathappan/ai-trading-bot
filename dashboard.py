@@ -188,6 +188,17 @@ def get_performance():
         logger.error(f"Error getting performance: {e}")
         return jsonify({'error': str(e)}), 500
 
+@app.route('/api/strategy-performance')
+def get_strategy_performance():
+    """Get performance stats for all strategies"""
+    try:
+        db = Database()
+        strategies = db.get_strategy_performance()
+        return jsonify({'strategies': strategies})
+    except Exception as e:
+        logger.error(f"Error getting strategy performance: {e}")
+        return jsonify({'error': str(e)}), 500
+
 @app.route('/api/control/pause', methods=['POST'])
 def pause_trading():
     """Pause trading"""
@@ -225,6 +236,52 @@ def square_off():
         return jsonify({'error': 'Trading engine not initialized'}), 400
     except Exception as e:
         logger.error(f"Error squaring off: {e}")
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/strategies', methods=['GET'])
+@check_pin
+def get_strategies():
+    """Get enabled strategies"""
+    return jsonify(Config.ENABLED_STRATEGIES)
+
+@app.route('/api/strategies', methods=['POST'])
+@check_pin
+def update_strategies():
+    """Update enabled strategies"""
+    try:
+        data = request.json
+        Config.update_strategies(data)
+        logger.info(f"Strategies updated: {Config.ENABLED_STRATEGIES}")
+        return jsonify({'status': 'success', 'strategies': Config.ENABLED_STRATEGIES})
+    except Exception as e:
+        logger.error(f"Error updating strategies: {e}")
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/settings/risk', methods=['GET'])
+@check_pin
+def get_risk_settings():
+    """Get risk settings"""
+    return jsonify({
+        'RISK_PER_TRADE': Config.RISK_PER_TRADE,
+        'STOP_LOSS_PERCENT': Config.STOP_LOSS_PERCENT,
+        'TARGET_PERCENT': Config.TARGET_PERCENT,
+        'TRAILING_STOP_PERCENT': Config.TRAILING_STOP_PERCENT,
+        'MAX_DAILY_LOSS': Config.MAX_DAILY_LOSS,
+        'SECURE_PROFIT_ENABLED': Config.SECURE_PROFIT_ENABLED,
+        'SECURE_PROFIT_AMOUNT': Config.SECURE_PROFIT_AMOUNT
+    })
+
+@app.route('/api/settings/risk', methods=['POST'])
+@check_pin
+def update_risk_settings():
+    """Update risk settings"""
+    try:
+        data = request.json
+        Config.update_risk_settings(data)
+        logger.info(f"Risk settings updated: {data}")
+        return jsonify({'status': 'success'})
+    except Exception as e:
+        logger.error(f"Error updating risk settings: {e}")
         return jsonify({'error': str(e)}), 500
 
 @app.route('/api/configure', methods=['POST'])
