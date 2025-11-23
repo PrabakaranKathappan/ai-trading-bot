@@ -24,6 +24,10 @@ class Config:
     # Trading Mode
     TRADING_MODE = os.getenv('TRADING_MODE', 'paper').lower()
     
+    # Index Selection
+    # Options: 'NSE_INDEX|Nifty 50', 'NSE_INDEX|Nifty Bank', 'NSE_INDEX|Nifty Fin Service'
+    TRADING_SYMBOL = os.getenv('TRADING_SYMBOL', 'NSE_INDEX|Nifty 50')
+    
     # Enabled Strategies
     ENABLED_STRATEGIES = {
         'RSI': True,

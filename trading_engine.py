@@ -20,7 +20,8 @@ class TradingEngine:
         self.risk_manager = RiskManager(self.database)
         self.is_running = False
         self.positions = []
-        self.symbol = 'NSE_INDEX|Nifty 50'  # Nifty index symbol
+        self.positions = []
+        self.symbol = Config.TRADING_SYMBOL  # Configurable index symbol
         
     def initialize(self):
         """Initialize the trading engine"""
