@@ -1,6 +1,6 @@
 # Session Summary
 
-**Date:** November 22, 2025
+**Date:** November 23, 2025
 **Project:** AI Trading Bot
 
 ## ✅ Accomplishments
@@ -8,23 +8,28 @@
 - **Repository:** Created `ai-trading-bot` on GitHub and pushed all code.
   - **Repo URL:** [https://github.com/PrabakaranKathappan/ai-trading-bot.git](https://github.com/PrabakaranKathappan/ai-trading-bot.git)
 - **Cloud Setup:**
-  - Configured `render.yaml` for Render Free Tier (removed database dependency).
-  - Pushed configuration changes to GitHub.
-  - Created **Deployment Guide**: `RENDER_DEPLOY_GUIDE.md`.
+  - Configured `render.yaml` for Render Free Tier.
+  - Ready for deployment.
+- **Mobile App:**
+  - Initialized React Native (Expo) app.
+  - Started debugging web view issues (blank screen).
 
 ## ⏸️ Current Status
-The project is ready for deployment on Render. The `render.yaml` file is set up to use a Blueprint, which allows for easy deployment of the free tier service.
+- **Backend:** Ready to deploy to Render.
+- **Mobile App:** In progress. Currently debugging a blank screen issue when running in web mode. Need to verify login flow and dashboard.
 
 ## 📝 Next Steps (When you return)
 1. **Deploy to Render:**
    - Open `RENDER_DEPLOY_GUIDE.md`.
-   - Follow the 3 simple steps to create the Blueprint on Render.
-   - You will need your Upstox API Key and Secret during this process.
+   - Create Blueprint on Render to get the live backend URL.
 
 2. **Mobile App:**
-   - Begin work on the React Native Android app (refer to `MOBILE_APP.md`).
+   - Fix blank screen issue in web view.
+   - Update `DashboardScreen.js` and `LoginScreen.js` if needed.
+   - Connect app to the live Render backend.
 
 ## 📂 Important Files
-- `RENDER_DEPLOY_GUIDE.md`: Step-by-step instructions for deployment.
-- `task.md`: Tracks overall progress.
+- `RENDER_DEPLOY_GUIDE.md`: Instructions for cloud deployment.
+- `MOBILE_APP.md`: Guide for running and building the mobile app.
+- `mobile-app/`: Directory containing the React Native code.
 - `SESSION_SUMMARY.md`: This file.

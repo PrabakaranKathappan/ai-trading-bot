@@ -7,13 +7,78 @@ const REFRESH_INTERVAL = 5000;
 // Auto-refresh timer
 let refreshTimer = null;
 
+// Access PIN (stored in memory only)
+let accessPin = null;
+
 // Initialize dashboard
 document.addEventListener('DOMContentLoaded', function () {
     console.log('Dashboard initialized');
     registerServiceWorker();
     checkInstallPrompt();
-    refreshData();
-    startAutoRefresh();
+
+    // Show PIN modal on load
+    showPinModal();
+});
+
+// Show PIN Modal
+function showPinModal() {
+    const modal = document.getElementById('pinModal');
+    const input = document.getElementById('pinInput');
+    const error = document.getElementById('pinError');
+
+    modal.style.display = 'flex';
+    input.value = '';
+    input.focus();
+    error.textContent = '';
+
+    // Stop any existing refresh timer
+    stopAutoRefresh();
+}
+
+// Submit PIN
+async function submitPin() {
+    const input = document.getElementById('pinInput');
+    const error = document.getElementById('pinError');
+    const pin = input.value.trim();
+
+    if (pin.length < 4) {
+        error.textContent = 'Please enter a valid PIN';
+        return;
+    }
+
+    // Store PIN temporarily
+    accessPin = pin;
+
+    // Test PIN by fetching status
+    try {
+        const response = await fetch(`${API_URL}/api/status`, {
+            headers: {
+                'X-Access-Pin': accessPin
+            }
+        });
+
+        if (response.ok) {
+            // Success
+            document.getElementById('pinModal').style.display = 'none';
+            refreshData();
+            startAutoRefresh();
+        } else {
+            // Failed
+            error.textContent = 'Invalid PIN. Please try again.';
+            accessPin = null;
+        }
+    } catch (err) {
+        console.error('Error verifying PIN:', err);
+        error.textContent = 'Connection error. Please try again.';
+        accessPin = null;
+    }
+}
+
+// Handle Enter key in PIN input
+document.getElementById('pinInput').addEventListener('keypress', function (e) {
+    if (e.key === 'Enter') {
+        submitPin();
+    }
 });
 
 // Start auto-refresh
@@ -34,8 +99,18 @@ function stopAutoRefresh() {
 
 // Refresh all data
 async function refreshData() {
+    if (!accessPin) return;
+
     try {
-        const response = await fetch(`${API_URL}/api/status`);
+        const headers = { 'X-Access-Pin': accessPin };
+
+        const response = await fetch(`${API_URL}/api/status`, { headers });
+
+        if (response.status === 401) {
+            showPinModal();
+            return;
+        }
+
         const data = await response.json();
 
         updateStatus(data);
@@ -195,10 +270,13 @@ function updateRiskMetrics(metrics) {
 
 // Control functions
 async function pauseTrading() {
+    if (!accessPin) return;
     try {
         const response = await fetch(`${API_URL}/api/control/pause`, {
-            method: 'POST'
+            method: 'POST',
+            headers: { 'X-Access-Pin': accessPin }
         });
+        if (response.status === 401) { showPinModal(); return; }
         const data = await response.json();
         console.log('Trading paused:', data);
         refreshData();
@@ -209,10 +287,13 @@ async function pauseTrading() {
 }
 
 async function resumeTrading() {
+    if (!accessPin) return;
     try {
         const response = await fetch(`${API_URL}/api/control/resume`, {
-            method: 'POST'
+            method: 'POST',
+            headers: { 'X-Access-Pin': accessPin }
         });
+        if (response.status === 401) { showPinModal(); return; }
         const data = await response.json();
         console.log('Trading resumed:', data);
         refreshData();
@@ -223,14 +304,17 @@ async function resumeTrading() {
 }
 
 async function squareOffAll() {
+    if (!accessPin) return;
     if (!confirm('Are you sure you want to square off all positions?')) {
         return;
     }
 
     try {
         const response = await fetch(`${API_URL}/api/control/square-off`, {
-            method: 'POST'
+            method: 'POST',
+            headers: { 'X-Access-Pin': accessPin }
         });
+        if (response.status === 401) { showPinModal(); return; }
         const data = await response.json();
         console.log('Squared off all positions:', data);
         refreshData();

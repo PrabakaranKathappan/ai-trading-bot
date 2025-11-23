@@ -32,28 +32,36 @@ export default function LoginScreen({ navigation }) {
 
         setLoading(true);
         try {
-            // Clean URL
-            const cleanUrl = url.replace(/\/$/, '');
+            // Clean URL and PIN
+            const cleanUrl = url.trim().replace(/\/$/, '');
+            const cleanPin = pin.trim();
 
             // Test connection
             const response = await axios.get(`${cleanUrl}/health`, {
-                headers: { 'X-Access-Pin': pin }
+                headers: { 'X-Access-Pin': cleanPin }
             });
 
             if (response.status === 200) {
                 // Save credentials
                 await SecureStore.setItemAsync('bot_url', cleanUrl);
-                await SecureStore.setItemAsync('bot_pin', pin);
+                await SecureStore.setItemAsync('bot_pin', cleanPin);
 
                 // Navigate to Dashboard
                 navigation.replace('Dashboard');
             }
         } catch (error) {
             console.log(error);
-            if (error.response && error.response.status === 401) {
-                Alert.alert('Error', 'Invalid PIN');
+            if (error.response) {
+                if (error.response.status === 401) {
+                    Alert.alert('Error', 'Invalid PIN');
+                } else {
+                    Alert.alert('Server Error', `Status: ${error.response.status}\n${JSON.stringify(error.response.data)}`);
+                }
+            } else if (error.request) {
+                Alert.alert('Network Error', 'No response received. Check internet or CORS.');
+                console.log('Request error:', error.request);
             } else {
-                Alert.alert('Error', 'Could not connect to bot. Check URL.');
+                Alert.alert('Error', error.message);
             }
         } finally {
             setLoading(false);
