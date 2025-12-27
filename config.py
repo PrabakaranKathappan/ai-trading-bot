@@ -29,6 +29,10 @@ class Config:
     EXPIRY_NIFTY = os.getenv("EXPIRY_NIFTY", "WEEKLY")
     EXPIRY_BANKNIFTY = os.getenv("EXPIRY_BANKNIFTY", "MONTHLY") # Defaulting to Monthly per SEBI
     EXPIRY_SENSEX = os.getenv("EXPIRY_SENSEX", "WEEKLY")
+
+    # Authentication
+    APP_PIN = os.getenv("APP_PIN", "1998")
+    SECRET_KEY = os.getenv("SECRET_KEY", "your-secret-key-change-this-in-production")
     
     # Lot Sizes (Quantity of Lots)
     LOT_SIZE_NIFTY = int(os.getenv("LOT_SIZE_NIFTY", 1))

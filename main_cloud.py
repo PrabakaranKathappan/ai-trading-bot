@@ -7,7 +7,8 @@ import logging
 import schedule
 import os
 from datetime import datetime, timedelta
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, session
+from functools import wraps
 from config import Config
 from strategy import InstitutionalPullbackStrategy
 from broker import MockBroker
@@ -18,6 +19,7 @@ logger = logging.getLogger("TradingApp")
 
 # Initialize Flask
 app = Flask(__name__)
+app.secret_key = Config().SECRET_KEY
 
 # Initialize Bot Components
 config = Config()
@@ -247,7 +249,47 @@ def run_scheduler():
 
 # Flask Routes
 from flask import Flask, render_template, request, redirect, url_for
+
+# Login Required Decorator
+def login_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if 'logged_in' not in session:
+            return redirect(url_for('login'))
+        return f(*args, **kwargs)
+    return decorated_function
+
+# Settings Route
+@app.route('/settings', methods=['GET', 'POST'])
+@login_required
+def settings():
+    if request.method == 'POST':
+        # Handle form submission for settings updates
+        # This is a placeholder, actual logic would go here
+        logger.info("Settings updated (mock).")
+        return redirect(url_for('dashboard'))
+    return render_template('settings.html', config=config)
+
+# Login Route
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        password = request.form.get('password')
+        if password == config.APP_PIN:
+            session['logged_in'] = True
+            return redirect(url_for('dashboard'))
+        else:
+            return render_template('login.html', error='Incorrect answer! Try again.')
+    return render_template('login.html')
+
+# Logout Route
+@app.route('/logout')
+def logout():
+    session.pop('logged_in', None)
+    return redirect(url_for('login'))
+
 @app.route('/')
+@login_required
 def dashboard():
     # Merge for UI
     positions = paper_broker.get_positions()
@@ -305,6 +347,7 @@ def dashboard():
                          sensex_price=sensex_price)
 
 @app.route('/toggle_bot', methods=['POST'])
+@login_required
 def toggle_bot():
     global bot_active
     bot_active = not bot_active
@@ -312,6 +355,7 @@ def toggle_bot():
     return redirect(url_for('dashboard'))
 
 @app.route('/square_off', methods=['POST'])
+@login_required
 def square_off():
     # Square off both paper and live
     paper_broker.square_off_all()
@@ -321,6 +365,7 @@ def square_off():
     return redirect(url_for('dashboard'))
 
 @app.route('/update_selection', methods=['POST'])
+@login_required
 def update_selection():
     selected = []
     if request.form.get('idx_nifty') == 'on': selected.append('NIFTY')
@@ -355,6 +400,7 @@ def update_selection():
     return redirect(url_for('dashboard'))
 
 @app.route('/login_upstox')
+@login_required
 def login_upstox():
     if not config.UPSTOX_API_KEY or not config.UPSTOX_REDIRECT_URI:
         return "Please configure API Credentials first in Settings."
@@ -363,6 +409,7 @@ def login_upstox():
     return redirect(auth_url)
 
 @app.route('/callback')
+@login_required
 def callback():
     global is_connected, access_token
     code = request.args.get('code')

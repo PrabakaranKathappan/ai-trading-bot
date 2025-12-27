@@ -279,6 +279,9 @@
 
                 <button class="btn btn-outline" onclick="openSettings()">Configure</button>
 
+                <a href="/logout" class="btn btn-outline"
+                    style="text-decoration: none; background: rgba(231, 76, 60, 0.1); color: #e74c3c; border: 1px solid rgba(231, 76, 60, 0.3);">Logout</a>
+
                 {% if not is_connected %}
                 <a href="/login_upstox" class="btn btn-primary" style="text-decoration: none;">Connect Upstox</a>
                 {% endif %}
