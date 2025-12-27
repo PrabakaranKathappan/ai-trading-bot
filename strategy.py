@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 import math
 from ta.trend import EMAIndicator
+from ta.volatility import AverageTrueRange
 
 class InstitutionalPullbackStrategy:
     def __init__(self, config):
@@ -9,7 +10,7 @@ class InstitutionalPullbackStrategy:
 
     def calculate_indicators(self, df):
         """
-        Calculates 20 EMA, VWAP, and Slope.
+        Calculates 20 EMA, VWAP, Slope, and ATR.
         Assumes df has columns: 'close', 'high', 'low', 'volume'
         """
         # 20 EMA
@@ -17,24 +18,17 @@ class InstitutionalPullbackStrategy:
         df['ema_20'] = ema20.ema_indicator()
         
         # VWAP (Volume Weighted Average Price)
-        # VWAP = Cumulative(Price * Volume) / Cumulative(Volume)
-        # Typically calculated intraday, resetting at start of day. 
-        # Here we do a rolling calculation or simple full-series for simplicity in mock
-        # For a clearer intraday VWAP, we'd group by Date.
-        # Simplified approximation:
         df['tp'] = (df['high'] + df['low'] + df['close']) / 3
         df['tp_v'] = df['tp'] * df['volume']
         df['cumulative_tp_v'] = df['tp_v'].cumsum()
         df['cumulative_vol'] = df['volume'].cumsum()
         df['vwap'] = df['cumulative_tp_v'] / df['cumulative_vol']
         
-        # Slope of EMA
-        # Calculate slope based on last 2 points usually
-        # Angle = arctan(change_in_price / change_in_time) 
-        # But 'time' is 1 bar. So just change in price?
-        # To normalize, we can check percentage change or simple difference.
-        # "45 degrees" is visual and depends on chart scaling. 
-        # A robust code equivalent is checking if the trend is strong positive.
+        # ATR (14 period) for volatility mapping
+        atr_indicator = AverageTrueRange(high=df['high'], low=df['low'], close=df['close'], window=14)
+        df['atr'] = atr_indicator.average_true_range()
+        
+        # Slope of EMA (difference between last two points)
         df['ema_slope'] = df['ema_20'].diff()
         
         return df
@@ -42,42 +36,63 @@ class InstitutionalPullbackStrategy:
     def check_signal(self, df):
         """
         Checks for Buy/Sell signals on the last candle.
-        Returns: 'BUY_CALL', 'BUY_PUT', or None
+        Returns: Dict with signal details or None
         """
         if len(df) < 20:
             return None
             
-        current_candle = df.iloc[-1]
-        previous_candle = df.iloc[-2]
+        current = df.iloc[-1]
+        prev = df.iloc[-2]
         
-        price = current_candle['close']
-        ema_20 = current_candle['ema_20']
-        vwap = current_candle['vwap']
-        slope = current_candle['ema_slope']
+        price = current['close']
+        ema_val = current['ema_20']
+        vwap_val = current['vwap']
+        slope = current['ema_slope']
+        atr = current['atr'] if not pd.isna(current['atr']) else 10.0
         
-        # Define "Touch" buffer (e.g., within 0.1% or 0.2% of EMA)
-        # or Low < EMA < High (price actually crossed/touched it)
-        # "Bounce" means it touched and rejected.
-        # For a "Limit" entry, we might look for price entering the zone.
-        # Let's check if Low <= EMA <= High for the touch.
-        touched_ema = current_candle['low'] <= ema_20 <= current_candle['high'] 
+        # 1. Trend Filter
+        # Threshold: We look for a slope that isn't flat. 
+        # Using 0.01% of price as a minimum move per bar.
+        threshold = price * 0.0001 
+        is_uptrend = price > vwap_val and slope > threshold
+        is_downtrend = price < vwap_val and slope < -threshold
         
-        # Or maybe the previous candle touched it and now we are green?
-        # The user says: "The first time the price touches the 20 EMA after a breakout."
-        # This implies waiting for the touch.
+        # 2. Bounce/Rejection Logic
+        # Does the candle's range include the EMA?
+        touched_ema = current['low'] <= ema_val <= current['high']
         
-        # Slope check (Positive for Calls)
-        # This is a rudimentary checks logic. "45 degrees" implies strong trend.
-        # Let's assume a positive slope > 0 is a basic requirement, 
-        # maybe > some small threshold to filter flat markets.
-        is_slope_positive = slope > 0
-        is_slope_negative = slope < 0
-        
-        # Signal Logic
         if touched_ema:
-            if price > vwap and is_slope_positive:
-                return "BUY_CALL"
-            elif price < vwap and is_slope_negative:
-                return "BUY_PUT"
+            # Rejection: We dipped to EMA and closed in the trend direction
+            # For Calls: Green candle touching EMA
+            if is_uptrend and current['close'] > current['open']:
+                entry = current['close']
+                # SL: Below candle low or EMA (whichever lower) - small buffer
+                sl = min(current['low'], ema_val) - (atr * 0.1)
+                risk = entry - sl
+                if risk <= 0: risk = atr # Fallback
+                tp = entry + (risk * 2) # 1:2 Risk Reward
+                
+                return {
+                    'side': 'BUY_CALL',
+                    'entry_price': entry,
+                    'stop_loss': sl,
+                    'take_profit': tp
+                }
+                
+            # For Puts: Red candle touching EMA
+            elif is_downtrend and current['close'] < current['open']:
+                entry = current['close']
+                # SL: Above candle high or EMA (whichever higher) + small buffer
+                sl = max(current['high'], ema_val) + (atr * 0.1)
+                risk = sl - entry
+                if risk <= 0: risk = atr # Fallback
+                tp = entry - (risk * 2) # 1:2 Risk Reward
+                
+                return {
+                    'side': 'BUY_PUT',
+                    'entry_price': entry,
+                    'stop_loss': sl,
+                    'take_profit': tp
+                }
                 
         return None

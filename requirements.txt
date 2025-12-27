@@ -4,3 +4,4 @@ ta
 schedule
 requests
 python-dotenv
+flask

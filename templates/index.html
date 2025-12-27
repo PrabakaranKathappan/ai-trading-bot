@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Institutional Pullback Bot</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0f172a;
+            --bg-secondary: #1e293b;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --accent-success: #10b981;
+            --accent-danger: #ef4444;
+            --accent-primary: #3b82f6;
+            --border-color: #334155;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .status-badge {
+            padding: 6px 12px;
+            border-radius: 9999px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            background-color: rgba(16, 185, 129, 0.2);
+            color: var(--accent-success);
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background-color: var(--bg-secondary);
+            border-radius: 12px;
+            padding: 24px;
+            border: 1px solid var(--border-color);
+        }
+
+        .card-title {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            margin-bottom: 8px;
+        }
+
+        .card-value {
+            font-size: 1.875rem;
+            font-weight: 700;
+        }
+
+        .card-value.positive {
+            color: var(--accent-success);
+        }
+
+        .card-value.negative {
+            color: var(--accent-danger);
+        }
+
+        .section-title {
+            font-size: 1.25rem;
+            margin-bottom: 15px;
+            margin-top: 30px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: var(--bg-secondary);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        th,
+        td {
+            text-align: left;
+            padding: 16px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th {
+            background-color: rgba(255, 255, 255, 0.05);
+            font-weight: 600;
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: var(--text-secondary);
+            background-color: var(--bg-secondary);
+            border-radius: 12px;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background-color: var(--bg-secondary);
+            padding: 30px;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 500px;
+            border: 1px solid var(--border-color);
+            position: relative;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            color: var(--text-secondary);
+            font-size: 24px;
+            cursor: pointer;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            background-color: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            border-radius: 6px;
+            font-family: inherit;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            transition: opacity 0.2s;
+        }
+
+        .btn-primary {
+            background-color: var(--accent-primary);
+            color: white;
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            margin-right: 10px;
+        }
+
+        .btn:hover {
+            opacity: 0.9;
+        }
+
+        .badge {
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <div style="display: flex; align-items: center; gap: 15px;">
+                <span class="live-dot"
+                    style="background-color: {% if is_connected %}var(--accent-success){% else %}var(--text-secondary){% endif %}"></span>
+                <h1>Institutional Pullback Bot</h1>
+                <div style="display: flex; gap: 8px;">
+                    {% if config.PAPER_TRADING_ENABLED %}
+                    <span class="badge"
+                        style="background: rgba(52, 152, 219, 0.2); color: #3498db; border: 1px solid #3498db;">Paper
+                        Active</span>
+                    {% endif %}
+                    {% if config.LIVE_TRADING_ENABLED %}
+                    <span class="badge"
+                        style="background: rgba(231, 76, 60, 0.2); color: #e74c3c; border: 1px solid #e74c3c;">LIVE
+                        EXECUTING</span>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="header-actions" style="display: flex; align-items: center; gap: 15px;">
+                <form action="/update_selection" method="POST"
+                    style="display: flex; align-items: center; gap: 12px; background: rgba(255,255,255,0.05); padding: 6px 16px; border-radius: 8px; border: 1px solid var(--border-color); margin: 0;">
+                    <label
+                        style="display: flex; align-items: center; gap: 6px; cursor: pointer; font-size: 0.85rem; font-weight: 500;">
+                        <input type="checkbox" name="idx_nifty" onchange="this.form.submit()" {% if 'NIFTY' in
+                            config.SELECTED_INDICES %}checked{% endif %}> Nifty
+                    </label>
+                    <label
+                        style="display: flex; align-items: center; gap: 6px; cursor: pointer; font-size: 0.85rem; font-weight: 500;">
+                        <input type="checkbox" name="idx_banknifty" onchange="this.form.submit()" {% if 'BANKNIFTY' in
+                            config.SELECTED_INDICES %}checked{% endif %}> BankNifty
+                    </label>
+                    <label
+                        style="display: flex; align-items: center; gap: 6px; cursor: pointer; font-size: 0.85rem; font-weight: 500;">
+                        <input type="checkbox" name="idx_sensex" onchange="this.form.submit()" {% if 'SENSEX' in
+                            config.SELECTED_INDICES %}checked{% endif %}> Sensex
+                    </label>
+                </form>
+
+                <form action="/toggle_bot" method="POST" style="margin: 0;">
+                    <button type="submit" class="btn {% if bot_active %}btn-danger{% else %}btn-success{% endif %}"
+                        style="padding: 6px 16px;">
+                        {% if bot_active %}Stop Bot{% else %}Start Bot{% endif %}
+                    </button>
+                </form>
+
+                <form action="/square_off" method="POST" style="margin: 0;">
+                    <button type="submit" class="btn"
+                        style="background: rgba(231, 76, 60, 0.1); color: #e74c3c; border: 1px solid rgba(231, 76, 60, 0.3); padding: 6px 16px;"
+                        onclick="return confirm('SQUARE OFF: Are you sure you want to close ALL positions?')">Square Off
+                        All</button>
+                </form>
+
+                <button class="btn btn-outline" onclick="openSettings()">Configure</button>
+
+                {% if not is_connected %}
+                <a href="/login_upstox" class="btn btn-primary" style="text-decoration: none;">Connect Upstox</a>
+                {% endif %}
+
+                <span class="status-badge" style="
+                    background-color: {% if bot_active %}rgba(16, 185, 129, 0.2){% else %}rgba(148, 163, 184, 0.2){% endif %};
+                    color: {% if bot_active %}var(--accent-success){% else %}var(--text-secondary){% endif %};
+                ">
+                    {% if bot_active %}RUNNING{% else %}PAUSED{% endif %}
+                </span>
+            </div>
+        </header>
+
+        <div class="grid">
+            <div class="card">
+                <div class="card-title">
+                    {% if is_connected %}
+                    Nifty 50 <span style="font-size: 0.8em; color: var(--accent-success);">●</span>
+                    {% else %}
+                    Nifty 50 (Sim) <span style="font-size: 0.8em; color: var(--accent-danger);">●</span>
+                    {% endif %}
+                </div>
+                <div class="card-value" style="color: var(--accent-primary);">
+                    {{ "%.2f"|format(nifty_price) }}
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-title">
+                    {% if is_connected %}
+                    Bank Nifty <span style="font-size: 0.8em; color: var(--accent-success);">●</span>
+                    {% else %}
+                    Bank Nifty (Sim) <span style="font-size: 0.8em; color: var(--accent-danger);">●</span>
+                    {% endif %}
+                </div>
+                <div class="card-value" style="color: var(--accent-primary);">
+                    {{ "%.2f"|format(latest_price) }}
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-title">
+                    {% if is_connected %}
+                    Sensex <span style="font-size: 0.8em; color: var(--accent-success);">●</span>
+                    {% else %}
+                    Sensex (Sim) <span style="font-size: 0.8em; color: var(--accent-danger);">●</span>
+                    {% endif %}
+                </div>
+                <div class="card-value" style="color: var(--accent-primary);">
+                    {{ "%.2f"|format(sensex_price) }}
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-title">Total P&L</div>
+                <div class="card-value {% if pnl >= 0 %}positive{% else %}negative{% endif %}">
+                    {{ "%.2f"|format(pnl) }}
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-title">Active Positions</div>
+                <div class="card-value">{{ positions|length }}</div>
+            </div>
+            <div class="card">
+                <div class="card-title">Capital</div>
+                <div class="card-value">{{ "%.2f"|format(capital) }}</div>
+            </div>
+        </div>
+
+        <h2 class="section-title">Open Positions</h2>
+        {% if positions %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Symbol</th>
+                    <th>Qty</th>
+                    <th>Entry Price</th>
+                    <th>Current Price</th>
+                    <th>P&L</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for pos in positions %}
+                <tr>
+                    <td>{{ pos.symbol_display }}</td>
+                    <td>{{ pos.quantity }}</td>
+                    <td>{{ "%.2f"|format(pos.entry_price) }}</td>
+                    <td>{{ "%.2f"|format(pos.current_price) }}</td>
+                    <td class="{% if pos.pnl >= 0 %}pnl-positive{% else %}pnl-negative{% endif %}">
+                        {{ "%.2f"|format(pos.pnl) }}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="empty-state">No open positions</div>
+        {% endif %}
+
+        <h2 class="section-title">Recent Orders</h2>
+        {% if orders %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Time</th>
+                    <th>Symbol</th>
+                    <th>Side</th>
+                    <th>Qty</th>
+                    <th>Avg Price</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for order in orders[-10:]|reverse %}
+                <tr>
+                    <td>{{ order.time.strftime('%H:%M:%S') }}</td>
+                    <td>{{ order.symbol }}</td>
+                    <td><span class="badge"
+                            style="background: {% if 'BUY' in order.side %}rgba(46, 204, 113, 0.2){% else %}rgba(231, 76, 60, 0.2){% endif %}; color: {% if 'BUY' in order.side %}#2ecc71{% else %}#e74c3c{% endif %}; border: 1px solid {% if 'BUY' in order.side %}#2ecc71{% else %}#e74c3c{% endif %};">
+                            {{ order.side }}</span></td>
+                    <td>{{ order.quantity }}</td>
+                    <td>{{ "%.2f"|format(order.price) if order.price else "-" }}</td>
+                    <td><span class="badge"
+                            style="background: rgba(148, 163, 184, 0.2); color: var(--text-secondary); border: 1px solid var(--border-color);">
+                            {{ order.status }}</span></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="empty-state">No orders yet</div>
+        {% endif %}
+    </div>
+
+    <!-- Settings Modal -->
+    <div id="settingsModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeSettings()">&times;</span>
+            <h2 style="margin-bottom: 20px;">Upstox Configuration</h2>
+            <form action="/settings" method="POST">
+                <div class="form-group">
+                    <label>API Key</label>
+                    <input type="text" name="api_key" value="{{ config.UPSTOX_API_KEY }}" required>
+                </div>
+                <div class="form-group">
+                    <label>API Secret</label>
+                    <input type="password" name="api_secret" value="{{ config.UPSTOX_API_SECRET }}" required>
+                </div>
+                <div class="form-group">
+                    <label for="redirect_uri">Redirect URI</label>
+                    <input type="text" id="redirect_uri" name="redirect_uri" value="{{ config.UPSTOX_REDIRECT_URI }}"
+                        required>
+                </div>
+
+                <div class="form-group">
+                    <label>Active Derivatives</label>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 5px;">
+                        <div style="display: flex; gap: 8px; align-items: center;">
+                            <input type="checkbox" id="idx_nifty" name="idx_nifty" {% if 'NIFTY' in
+                                config.SELECTED_INDICES %}checked{% endif %}>
+                            <label for="idx_nifty" style="margin: 0;">Nifty 50</label>
+                        </div>
+                        <div style="display: flex; gap: 8px; align-items: center;">
+                            <input type="checkbox" id="idx_banknifty" name="idx_banknifty" {% if 'BANKNIFTY' in
+                                config.SELECTED_INDICES %}checked{% endif %}>
+                            <label for="idx_banknifty" style="margin: 0;">Bank Nifty</label>
+                        </div>
+                        <div style="display: flex; gap: 8px; align-items: center;">
+                            <input type="checkbox" id="idx_sensex" name="idx_sensex" {% if 'SENSEX' in
+                                config.SELECTED_INDICES %}checked{% endif %}>
+                            <label for="idx_sensex" style="margin: 0;">Sensex</label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Nifty 50 Row -->
+                <div
+                    style="margin-top: 15px; padding: 15px; background: rgba(52, 152, 219, 0.05); border-radius: 8px; border: 1px solid rgba(52, 152, 219, 0.2);">
+                    <div
+                        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                        <h4 style="margin: 0; font-size: 0.9rem; color: #3498db; text-transform: uppercase;">Nifty 50
+                        </h4>
+                        <span style="font-size: 0.7rem; color: var(--text-secondary);">Multiplier: 25</span>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px;">
+                        <div class="form-group">
+                            <label style="font-size: 0.75rem;">Moneyness</label>
+                            <select name="moneyness_nifty" style="padding: 4px; font-size: 0.8rem;">
+                                <option value="ITM" {% if config.MONEYNESS_NIFTY=='ITM' %}selected{% endif %}>ITM
+                                </option>
+                                <option value="ATM" {% if config.MONEYNESS_NIFTY=='ATM' %}selected{% endif %}>ATM
+                                </option>
+                                <option value="OTM" {% if config.MONEYNESS_NIFTY=='OTM' %}selected{% endif %}>OTM
+                                </option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label style="font-size: 0.75rem;">Expiry</label>
+                            <select name="expiry_nifty" style="padding: 4px; font-size: 0.8rem;">
+                                <option value="CURR_WEEK" {% if config.EXPIRY_NIFTY=='CURR_WEEK' or
+                                    config.EXPIRY_NIFTY=='WEEKLY' %}selected{% endif %}>Current Week</option>
+                                <option value="NEXT_WEEK" {% if config.EXPIRY_NIFTY=='NEXT_WEEK' %}selected{% endif %}>
+                                    Next Week</option>
+                                <option value="CURR_MONTH" {% if config.EXPIRY_NIFTY=='CURR_MONTH' or
+                                    config.EXPIRY_NIFTY=='MONTHLY' %}selected{% endif %}>Current Month</option>
+                                <option value="NEXT_MONTH" {% if config.EXPIRY_NIFTY=='NEXT_MONTH' %}selected{% endif
+                                    %}>Next Month</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label style="font-size: 0.75rem;">Lots</label>
+                            <input type="number" name="lot_size_nifty" value="{{ config.LOT_SIZE_NIFTY }}" min="1"
+                                style="padding: 4px; font-size: 0.8rem;">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bank Nifty Row -->
+                <div
+                    style="margin-top: 15px; padding: 15px; background: rgba(46, 204, 113, 0.05); border-radius: 8px; border: 1px solid rgba(46, 204, 113, 0.2);">
+                    <div
+                        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                        <h4 style="margin: 0; font-size: 0.9rem; color: #2ecc71; text-transform: uppercase;">Bank Nifty
+                        </h4>
+                        <span style="font-size: 0.7rem; color: var(--text-secondary);">Multiplier: 15</span>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px;">
+                        <div class="form-group">
+                            <label style="font-size: 0.75rem;">Moneyness</label>
+                            <select name="moneyness_banknifty" style="padding: 4px; font-size: 0.8rem;">
+                                <option value="ITM" {% if config.MONEYNESS_BANKNIFTY=='ITM' %}selected{% endif %}>ITM
+                                </option>
+                                <option value="ATM" {% if config.MONEYNESS_BANKNIFTY=='ATM' %}selected{% endif %}>ATM
+                                </option>
+                                <option value="OTM" {% if config.MONEYNESS_BANKNIFTY=='OTM' %}selected{% endif %}>OTM
+                                </option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label style="font-size: 0.75rem;">Expiry</label>
+                            <select name="expiry_banknifty" style="padding: 4px; font-size: 0.8rem;">
+                                <option value="CURR_WEEK" {% if config.EXPIRY_BANKNIFTY=='CURR_WEEK' or
+                                    config.EXPIRY_BANKNIFTY=='WEEKLY' %}selected{% endif %}>Current Week</option>
+                                <option value="NEXT_WEEK" {% if config.EXPIRY_BANKNIFTY=='NEXT_WEEK' %}selected{% endif
+                                    %}>Next Week</option>
+                                <option value="CURR_MONTH" {% if config.EXPIRY_BANKNIFTY=='CURR_MONTH' or
+                                    config.EXPIRY_BANKNIFTY=='MONTHLY' %}selected{% endif %}>Current Month</option>
+                                <option value="NEXT_MONTH" {% if config.EXPIRY_BANKNIFTY=='NEXT_MONTH' %}selected{%
+                                    endif %}>Next Month</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label style="font-size: 0.75rem;">Lots</label>
+                            <input type="number" name="lot_size_banknifty" value="{{ config.LOT_SIZE_BANKNIFTY }}"
+                                min="1" style="padding: 4px; font-size: 0.8rem;">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sensex Row -->
+                <div
+                    style="margin-top: 15px; padding: 15px; background: rgba(241, 196, 15, 0.05); border-radius: 8px; border: 1px solid rgba(241, 196, 15, 0.2);">
+                    <div
+                        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                        <h4 style="margin: 0; font-size: 0.9rem; color: #f1c40f; text-transform: uppercase;">Sensex</h4>
+                        <span style="font-size: 0.7rem; color: var(--text-secondary);">Multiplier: 10</span>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px;">
+                        <div class="form-group">
+                            <label style="font-size: 0.75rem;">Moneyness</label>
+                            <select name="moneyness_sensex" style="padding: 4px; font-size: 0.8rem;">
+                                <option value="ITM" {% if config.MONEYNESS_SENSEX=='ITM' %}selected{% endif %}>ITM
+                                </option>
+                                <option value="ATM" {% if config.MONEYNESS_SENSEX=='ATM' %}selected{% endif %}>ATM
+                                </option>
+                                <option value="OTM" {% if config.MONEYNESS_SENSEX=='OTM' %}selected{% endif %}>OTM
+                                </option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label style="font-size: 0.75rem;">Expiry</label>
+                            <select name="expiry_sensex" style="padding: 4px; font-size: 0.8rem;">
+                                <option value="CURR_WEEK" {% if config.EXPIRY_SENSEX=='CURR_WEEK' or
+                                    config.EXPIRY_SENSEX=='WEEKLY' %}selected{% endif %}>Current Week</option>
+                                <option value="NEXT_WEEK" {% if config.EXPIRY_SENSEX=='NEXT_WEEK' %}selected{% endif %}>
+                                    Next Week</option>
+                                <option value="CURR_MONTH" {% if config.EXPIRY_SENSEX=='CURR_MONTH' or
+                                    config.EXPIRY_SENSEX=='MONTHLY' %}selected{% endif %}>Current Month</option>
+                                <option value="NEXT_MONTH" {% if config.EXPIRY_SENSEX=='NEXT_MONTH' %}selected{% endif
+                                    %}>Next Month</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label style="font-size: 0.75rem;">Lots</label>
+                            <input type="number" name="lot_size_sensex" value="{{ config.LOT_SIZE_SENSEX }}" min="1"
+                                style="padding: 4px; font-size: 0.8rem;">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group" style="display: flex; gap: 20px; align-items: center; margin-top: 15px;">
+                    <div style="display: flex; gap: 8px; align-items: center;">
+                        <input type="checkbox" id="paper_enabled" name="paper_enabled" {% if
+                            config.PAPER_TRADING_ENABLED %}checked{% endif %}>
+                        <label for="paper_enabled" style="margin: 0;">Paper Trading</label>
+                    </div>
+                    <div style="display: flex; gap: 8px; align-items: center;">
+                        <input type="checkbox" id="live_enabled" name="live_enabled" {% if config.LIVE_TRADING_ENABLED
+                            %}checked{% endif %}>
+                        <label for="live_enabled" style="margin: 0; color: var(--accent-danger);">Live Trading</label>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 20px;">Save
+                    Configuration</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Auto-refresh page every 5 seconds to show latest data
+        // Paused if modal is open usually, but for simplicity we keep it or check
+
+        let isModalOpen = false;
+
+        function openSettings() {
+            document.getElementById('settingsModal').style.display = 'flex';
+            isModalOpen = true;
+        }
+
+        function closeSettings() {
+            document.getElementById('settingsModal').style.display = 'none';
+            isModalOpen = false;
+        }
+
+        window.onclick = function (event) {
+            if (event.target == document.getElementById('settingsModal')) {
+                closeSettings();
+            }
+        }
+
+        setTimeout(function () {
+            if (!isModalOpen) {
+                location.reload();
+            }
+        }, 5000);
+    </script>
+</body>
+
+</html>
